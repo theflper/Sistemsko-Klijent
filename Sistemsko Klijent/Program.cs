@@ -51,7 +51,7 @@ namespace Sistemsko_Klijent
         }
         static void f6()//stamoedo
         {
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 50; i++)
             {
                 ThreadPool.QueueUserWorkItem(SendRequest, "file20.csv");
             }
@@ -64,7 +64,7 @@ namespace Sistemsko_Klijent
                 string s=Console.ReadLine();
                 switch(s)
                 {
-                    case "1":f1();break;//napuni kes
+                    case "1": f1();break;//napuni kes
                     case "2": f2(); break;//test sa manjim fajlovima
                     case "3": f3(); break;//test sa vecim fajlovima
                     case "4": f4(); break;//pogresan tip
