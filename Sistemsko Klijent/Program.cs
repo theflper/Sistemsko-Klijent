@@ -22,7 +22,7 @@ namespace Sistemsko_Klijent
         {
             for(int i=1;i<=40;i++)
             {
-                ThreadPool.QueueUserWorkItem(SendRequest, $"fajl{i}.csv");
+                Task.Run(async () => await SendRequestAsync($"fajl{i}.csv"));
             }
         }
         static void f2()
@@ -30,7 +30,7 @@ namespace Sistemsko_Klijent
             string[] resursi = { "file1.csv", "file2.csv", "file3.csv" };
             foreach (var resurs in resursi)
             {
-                ThreadPool.QueueUserWorkItem(SendRequest, resurs);
+                Task.Run(async () => await SendRequestAsync(resurs));
             }
         }
         static void f3()
@@ -38,26 +38,29 @@ namespace Sistemsko_Klijent
             string[] resursi1 = { "testfile1.csv", "testfile2.csv", "testfile3.csv" };
             foreach (var resurs in resursi1)
             {
-                ThreadPool.QueueUserWorkItem(SendRequest, resurs);
+                Task.Run(async () => await SendRequestAsync(resurs));
             }
         }
         static void f4()//pogresan tip fajla
         {
-            ThreadPool.QueueUserWorkItem(SendRequest, "file.txt");
+            Task.Run(async () => await SendRequestAsync("file.txt"));
         }
         static void f5()//nepostojeci fajl
         {
-            ThreadPool.QueueUserWorkItem(SendRequest, "file0.csv");
+            Task.Run(async () => await SendRequestAsync("file0.csv"));
         }
         static void f6()//stamoedo
         {
             for (int i = 0; i < 50; i++)
             {
-                ThreadPool.QueueUserWorkItem(SendRequest, "file20.csv");
+                Task.Run(async () => await SendRequestAsync("file20.csv"));
             }
         }
         static void Main(string[] args)
         {
+            // PODIGNI LIMIT KONEKCIJA NA KLIJENTU (Dodaj ove dve linije!)
+            System.Net.ServicePointManager.DefaultConnectionLimit = 100;
+            System.Net.ServicePointManager.Expect100Continue = false;
             bool work = true;
             while(work)
             {
@@ -77,30 +80,30 @@ namespace Sistemsko_Klijent
             Console.WriteLine("Pritisni ENTER za izlaz...");
             Console.ReadLine();
         }
-        static void SendRequest(object state)
+        // Menjamo u async Task, a objekat 'state' kastujemo kao i pre
+        static async Task SendRequestAsync(string resurs)
         {
-            string resurs = (string)state;
-
             Stopwatch sw = new Stopwatch();
             sw.Start();
-
             try
             {
-                var response = client.GetAsync(resurs).Result;
+                //ASINHRONO slanje zahteva - nit se vraća u pool dok server ne odgovori
+                var response = await client.GetAsync(resurs);
                 response.EnsureSuccessStatusCode();
-                byte[] fileBytes = response.Content.ReadAsByteArrayAsync().Result;
-                sw.Stop();//zanima nas koliko vremena nam treba da dobijemo odgovor
-                          //ne i vreme da handlujemo sta treba na strani klijenta
-                          // PUTANJA: bin/Debug/.../data
+
+                //ASINHRONO čitanje bajtova iz mrežnog strima
+                byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
+
+                sw.Stop(); // Gasimo štopericu čim imamo bajtove u RAM-u
+
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 string dataFolder = Path.Combine(baseDir, "data");
-
-                // napravi folder ako ne postoji
                 Directory.CreateDirectory(dataFolder);
 
                 string fileName = $"{Path.GetFileNameWithoutExtension(resurs)}.xlsx";
                 string fullPath = Path.Combine(dataFolder, fileName);
 
+                // Logika oko klijentskih lock-ova ostaje ista jer je brza
                 object fileLock;
                 lock (globalLock)
                 {
