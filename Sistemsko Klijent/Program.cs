@@ -58,7 +58,7 @@ namespace Sistemsko_Klijent
         }
         static void Main(string[] args)
         {
-            // PODIGNI LIMIT KONEKCIJA NA KLIJENTU (Dodaj ove dve linije!)
+            // PODIGNI LIMIT KONEKCIJA NA KLIJENTU
             System.Net.ServicePointManager.DefaultConnectionLimit = 100;
             System.Net.ServicePointManager.Expect100Continue = false;
             bool work = true;
@@ -80,7 +80,7 @@ namespace Sistemsko_Klijent
             Console.WriteLine("Pritisni ENTER za izlaz...");
             Console.ReadLine();
         }
-        // Menjamo u async Task, a objekat 'state' kastujemo kao i pre
+        // Menjamo u async Task
         static async Task SendRequestAsync(string resurs)
         {
             Stopwatch sw = new Stopwatch();
@@ -99,11 +99,8 @@ namespace Sistemsko_Klijent
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 string dataFolder = Path.Combine(baseDir, "data");
                 Directory.CreateDirectory(dataFolder);
-
                 string fileName = $"{Path.GetFileNameWithoutExtension(resurs)}.xlsx";
                 string fullPath = Path.Combine(dataFolder, fileName);
-
-                // Logika oko klijentskih lock-ova ostaje ista jer je brza
                 object fileLock;
                 lock (globalLock)
                 {
