@@ -20,9 +20,14 @@ namespace Sistemsko_Klijent
         };
         static void f1()//napuni kes
         {
-            for(int i=1;i<=40;i++)
+            List<string> resursi = new List<string>();
+            for(int i = 1; i <= 40; i++)
             {
-                Task.Run(async () => await SendRequestAsync($"fajl{i}.csv"));
+                resursi.Add($"fajl{i}.csv");
+            }
+            foreach (var resurs in resursi)
+            {
+                Task.Run(async () => await SendRequestAsync(resurs));
             }
         }
         static void f2()
