@@ -18,13 +18,8 @@ namespace Sistemsko_Klijent
         {
             BaseAddress = new Uri("http://localhost:5050/")
         };
-        static void f1()//napuni kes
+        static void f1(List<string> resursi)//napuni kes
         {
-            List<string> resursi = new List<string>();
-            for(int i = 1; i <= 40; i++)
-            {
-                resursi.Add($"fajl{i}.csv");
-            }
             foreach (var resurs in resursi)
             {
                 Task.Run(async () => await SendRequestAsync(resurs));
@@ -75,12 +70,17 @@ namespace Sistemsko_Klijent
             System.Net.ServicePointManager.DefaultConnectionLimit = 100;
             System.Net.ServicePointManager.Expect100Continue = false;
             bool work = true;
-            while(work)
+            List<string> resursi = new List<string>();
+            for (int i = 1; i <= 40; i++)
+            {
+                resursi.Add($"fajl{i}.csv");
+            }
+            while (work)
             {
                 string s=Console.ReadLine();
                 switch(s)
                 {
-                    case "1": f1();break;//napuni kes
+                    case "1": f1(resursi);break;//napuni kes
                     case "2": f2(); break;//test sa manjim fajlovima
                     case "3": f3(); break;//test sa vecim fajlovima
                     case "4": f4(); break;//pogresan tip
