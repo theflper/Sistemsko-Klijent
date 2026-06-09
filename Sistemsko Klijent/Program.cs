@@ -54,16 +54,24 @@ namespace Sistemsko_Klijent
         {
             Task.Run(async () => await SendRequestAsync("file0.csv"));
         }
-        static void f6()//stamoedo
+        static void f7()//duplo stamoedo
         {
             for (int i = 0; i < 50; i++)
             {
                 Task.Run(async () => await SendRequestAsync("file20.csv"));
+                Task.Run(async () => await SendRequestAsync("file19.csv"));
+            }
+        }
+        static void f6()//stamoedo
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                Task.Run(async () => await SendRequestAsync("file18.csv"));
             }
         }
         static void Main(string[] args)
         {
-            // PODIGNI LIMIT KONEKCIJA NA KLIJENTU
+            // limit paralenih konekcija
             System.Net.ServicePointManager.DefaultConnectionLimit = 100;
             System.Net.ServicePointManager.Expect100Continue = false;
             bool work = true;
@@ -78,6 +86,7 @@ namespace Sistemsko_Klijent
                     case "4": f4(); break;//pogresan tip
                     case "5": f5(); break;//neposotojeci fajl
                     case "6": f6(); break;//stampedo
+                    case "7": f7(); break;//duplo stampedo
                     case "end":work = false; break;
                     default:break;
                 }
@@ -95,7 +104,6 @@ namespace Sistemsko_Klijent
                 //ASINHRONO slanje zahteva - nit se vraća u pool dok server ne odgovori
                 var response = await client.GetAsync(resurs);
                 response.EnsureSuccessStatusCode();
-
                 //ASINHRONO čitanje bajtova iz mrežnog strima
                 byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
 
